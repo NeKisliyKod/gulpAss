@@ -1,5 +1,7 @@
 let gulp         = require('gulp'),
     sass         = require('gulp-sass'),
+    pug          = require('gulp-pug'),
+    htmlbeautify = require('gulp-html-beautify'),
     browserSync  = require('browser-sync'),
     // uglify = require('gulp-uglify'),
     uglify       = require('gulp-uglify-es').default,
@@ -14,8 +16,28 @@ gulp.task('html', ()=> {
   .pipe(browserSync.reload({stream: true}))
 });
 
+gulp.task('pug', ()=> {
+  return gulp.src('app/pug/index.pug')
+    .pipe(pug())
+    .pipe(htmlbeautify())
+    .pipe(gulp.dest('app'))
+    .pipe(browserSync.reload({stream: true}))
+});
+
+gulp.task('htmlbeautify', ()=> {
+  let options = {
+    indentSize: 2,
+    unformatted:[
+      'abbr', 'div', 'span', 'area', 'b', 'sub', 'sup', 'a', 'strong'
+    ]
+  };
+  gulp.src('app/*.html')
+    .pipe(htmlbeautify(options))
+    .pipe(gulp.dest('app'))
+});
+
 gulp.task('scss', ()=> {
-  return gulp.src('app/scss/**/*.scss')
+  return gulp.src('app/scss/style.scss')
   .pipe(autoprefixer({
     overrideBrowserslist:['last 8 version']
   }))
@@ -67,6 +89,7 @@ gulp.task('watch', ()=> {
   gulp.watch('app/scss/**/*.scss', gulp.parallel('scss'));
   gulp.watch('app/**/*.html', gulp.parallel('html'));
   gulp.watch('app/js/main.js', gulp.parallel('js'));
+  gulp.watch('app/pug/*.pug', gulp.parallel('pug'));
 });
 
 gulp.task('default', gulp.parallel('scss', 'js' ,'browser-sync', 'watch'))
